@@ -30,7 +30,7 @@ void loop() {
     Serial.println("%");
 
     // Check if humidity is greater than 70%
-    if (humidity > 90.0) {
+    if (humidity > 80.0) {
       if (!relayActive) {
         digitalWrite(relayPin, HIGH); // Turn on the relay (connects the circuit)
         relayActive = true;

@@ -7,19 +7,23 @@
 #include "src/iotc/iotc.h"
 #include "DHT.h"
 
-#define DHTPIN D2
+#define DHTPIN D2       // Plug the signal pin of DHT11 to D2
 
 #define DHTTYPE DHT11   // DHT 11
+
 
 
 #define WIFI_SSID "TheHome_2.4GHz"
 #define WIFI_PASSWORD "0815402481"
 
-const char* SCOPE_ID = "0ne00A8BB71";
-const char* DEVICE_ID = "FTUDHT03";
-const char* DEVICE_KEY = "9fxgFV3dGXS7y6HFxAQX2R/sPpPC13H7XZlHY61S30o=";
+const char* SCOPE_ID = "0ne00AA363B";
+const char* DEVICE_ID = "13hb06pp9qh";
+const char* DEVICE_KEY = "aLSwhqAs2qGFFYEYyXVn/fJmXE1Ed+FLzomrJ9COyh4=";
 
 DHT dht(DHTPIN, DHTTYPE);
+
+const int relayPin = D7;  // Define the pin number for the relay
+bool relayActive = false; // Flag to track relay state
 
 void on_event(IOTContext ctx, IOTCallbackInfo* callbackInfo);
 #include "src/connection.h"
@@ -51,6 +55,7 @@ void on_event(IOTContext ctx, IOTCallbackInfo* callbackInfo) {
 
 void setup() {
   Serial.begin(9600);
+  pinMode(relayPin, OUTPUT);  // Set the relay pin as an output
 
   connect_wifi(WIFI_SSID, WIFI_PASSWORD);
   connect_client(SCOPE_ID, DEVICE_ID, DEVICE_KEY);
@@ -101,5 +106,18 @@ float t = dht.readTemperature();
     context = NULL;
     connect_client(SCOPE_ID, DEVICE_ID, DEVICE_KEY);
   }
+
+    // Check if humidity is greater than 85%
+    if (h > 85.0) {
+      if (!relayActive) {
+        digitalWrite(relayPin, HIGH); // Turn on the relay (connects the circuit)
+        relayActive = true;
+      }
+    } else {
+      if (relayActive) {
+        digitalWrite(relayPin, LOW); // Turn off the relay (disconnects the circuit)
+        relayActive = false;
+      }
+    }
 
 }
